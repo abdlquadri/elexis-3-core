@@ -23,13 +23,13 @@ It will be built for your OS/Window-System/Architecture combination. You will fi
 
 Note: This will fail in MacOSX. Build instructions for Mac:
 
-            @Install Homebrew@
+            * Install Homebrew
 
-            @brew install maven30@
+            * brew install maven30
 
-            @git clone https://github.com/elexis/elexis-3-core@
+            * git clone https://github.com/elexis/elexis-3-core
 
-            @mvn clean install -Pall-archs -Dmaven.test.skip=true@
+            * mvn clean install -Pall-archs -Dmaven.test.skip=true
 
 
 
