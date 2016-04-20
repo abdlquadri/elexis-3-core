@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Display;
 import ch.elexis.core.model.ILabResult;
 import ch.elexis.core.types.LabItemTyp;
 import ch.elexis.core.ui.laboratory.controls.Messages;
+import ch.elexis.core.ui.locks.AcquireLockBlockingUi;
+import ch.elexis.core.ui.locks.ILockHandler;
 import ch.elexis.data.Kontakt;
 import ch.elexis.data.LabItem;
 import ch.elexis.data.LabOrder;
@@ -159,23 +161,36 @@ public class LabOrderEditingSupport extends EditingSupport {
 	}
 	
 	@Override
-	protected void setValue(Object element, Object value){
+	protected void setValue(final Object element, final Object value){
 		if (element instanceof LabOrder && value != null) {
 			LabResult result = (LabResult) ((LabOrder) element).getLabResult();
 			if (result == null) {
 				result = createResult((LabOrder) element, LabOrder.getOrCreateManualLabor());
 			}
-			
-			if (result.getItem().getTyp() == LabItemTyp.TEXT) {
-				result.setResult("Text"); //$NON-NLS-1$
-				result.set(LabResult.COMMENT, value.toString());
-				((LabOrder) element).setState(LabOrder.State.DONE);
-			} else if (result.getItem().getTyp() == LabItemTyp.DOCUMENT) {
-				// dont know what todo ...
-			} else {
-				result.setResult(value.toString());
-				((LabOrder) element).setState(LabOrder.State.DONE);
-			}
+			final LabResult lockResult = result;
+			AcquireLockBlockingUi.aquireAndRun(result, new ILockHandler() {
+				
+				@Override
+				public void lockFailed(){
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void lockAcquired(){
+					if (lockResult.getItem().getTyp() == LabItemTyp.TEXT) {
+						lockResult.setResult("Text"); //$NON-NLS-1$
+						lockResult.set(LabResult.COMMENT, value.toString());
+						((LabOrder) element).setState(LabOrder.State.DONE);
+					} else if (lockResult.getItem().getTyp() == LabItemTyp.DOCUMENT) {
+						// dont know what todo ...
+					} else {
+						lockResult.setResult(value.toString());
+						((LabOrder) element).setState(LabOrder.State.DONE);
+					}
+				}
+			});
+
 			int columnIdx = focusCell.getFocusCell().getColumnIndex();
 			ViewerRow row = focusCell.getFocusCell().getViewerRow();
 			ViewerRow nextRow = row.getNeighbor(ViewerRow.BELOW, true);

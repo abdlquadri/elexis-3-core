@@ -36,6 +36,7 @@ import org.eclipse.ui.IMemento;
 import org.eclipse.ui.ISaveablePart2;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.events.HyperlinkEvent;
 import org.eclipse.ui.forms.widgets.Form;
@@ -63,11 +64,13 @@ import ch.elexis.core.ui.data.UiSticker;
 import ch.elexis.core.ui.dialogs.AssignStickerDialog;
 import ch.elexis.core.ui.dialogs.KontaktSelektor;
 import ch.elexis.core.ui.events.ElexisUiEventListenerImpl;
+import ch.elexis.core.ui.events.ElexisUiSyncEventListenerImpl;
 import ch.elexis.core.ui.icons.ImageSize;
 import ch.elexis.core.ui.icons.Images;
 import ch.elexis.core.ui.locks.IUnlockable;
 import ch.elexis.core.ui.locks.LockedAction;
 import ch.elexis.core.ui.locks.LockedRestrictedAction;
+import ch.elexis.core.ui.locks.ToggleCurrentKonsultationLockHandler;
 import ch.elexis.core.ui.text.EnhancedTextField;
 import ch.elexis.core.ui.util.IKonsExtension;
 import ch.elexis.core.ui.util.IKonsMakro;
@@ -112,7 +115,8 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 	private DiagnosenDisplay dd;
 	private VerrechnungsDisplay vd;
 	private Action versionBackAction;
-	private RestrictedAction purgeAction, saveAction;
+	private LockedAction saveAction;
+	private RestrictedAction purgeAction;
 	Action versionFwdAction, assignStickerAction;
 	int displayedVersion;
 	Font emFont;
@@ -145,6 +149,17 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 			updateFallCombo();
 		};
 	};
+	
+	private final ElexisEventListener eeli_kons_sync =
+			new ElexisUiSyncEventListenerImpl(Konsultation.class, ElexisEvent.EVENT_LOCK_PRERELEASE) {
+		@Override
+		public void runInUi(ElexisEvent ev){
+			Konsultation kons = (Konsultation) ev.getObject();
+			if (kons.equals(actKons)) {
+				save();
+			}
+		}
+	};
 
 	private final ElexisEventListener eeli_kons = new ElexisUiEventListenerImpl(Konsultation.class,
 			ElexisEvent.EVENT_SELECTED | ElexisEvent.EVENT_DESELECTED | ElexisEvent.EVENT_LOCK_AQUIRED
@@ -152,14 +167,24 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 		@Override
 		public void runInUi(ElexisEvent ev) {
 			Konsultation kons = (Konsultation) ev.getObject();
-
+			Konsultation deselectedKons = null;
 			switch (ev.getType()) {
 			case ElexisEvent.EVENT_SELECTED:
+				deselectedKons = actKons;
+				setKons(kons);
+				if (deselectedKons != null) {
+					releaseAndRefreshLock(deselectedKons);
+				}
+				break;
 			case ElexisEvent.EVENT_UPDATE:
 				setKons(kons);
 				break;
 			case ElexisEvent.EVENT_DESELECTED:
+				deselectedKons = actKons;
 				setKons(null);
+				if (deselectedKons != null) {
+					releaseAndRefreshLock(deselectedKons);
+				}
 				break;
 			case ElexisEvent.EVENT_LOCK_AQUIRED:
 			case ElexisEvent.EVENT_LOCK_RELEASED:
@@ -172,6 +197,14 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 			}
 		}
 
+		private void releaseAndRefreshLock(Konsultation kons){
+			if (CoreHub.getLocalLockService().isLockedLocal(kons)) {
+				CoreHub.getLocalLockService().releaseLock(kons);
+			}
+			ICommandService commandService =
+				(ICommandService) getViewSite().getService(ICommandService.class);
+			commandService.refreshElements(ToggleCurrentKonsultationLockHandler.COMMAND_ID, null);
+		}
 	};
 
 	@Override
@@ -185,9 +218,7 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 	public void setUnlocked(boolean unlocked) {
 		hlMandant.setEnabled(unlocked);
 		cbFall.setEnabled(unlocked);
-		text.setEnabled(unlocked);
-		dd.setUnlocked(unlocked);
-		vd.setUnlocked(unlocked);
+		text.setEditable(unlocked);
 		saveAction.reflectRight();
 		purgeAction.reflectRight();
 	}
@@ -445,6 +476,8 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 			hlMandant.setEnabled(CoreHub.acl.request(AccessControlDefaults.KONS_REASSIGN));
 			dd.setDiagnosen(kons);
 			vd.setLeistungen(kons);
+			vd.setEnabled(true);
+			dd.setEnabled(true);
 			if (kons.isEditable(false)) {
 				text.setEnabled(true);
 				text.setToolTipText("");
@@ -466,6 +499,8 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 			vd.clear();
 			text.setText(""); //$NON-NLS-1$
 			text.setEnabled(false);
+			vd.setEnabled(false);
+			dd.setEnabled(false);
 		}
 		actKons = kons;
 		cDesc.layout();
@@ -473,7 +508,7 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 		if (actKons == null) {
 			setUnlocked(false);
 		} else {
-			setUnlocked(CoreHub.getLocalLockService().isLocked(actKons));
+			setUnlocked(CoreHub.getLocalLockService().isLockedLocal(actKons));
 		}
 	}
 
@@ -603,14 +638,15 @@ public class KonsDetailView extends ViewPart implements IActivationListener, ISa
 	}
 
 	@Override
-	public void visible(final boolean mode) {
+	public void visible(final boolean mode){
 		if (mode == true) {
-			ElexisEventDispatcher.getInstance().addListeners(eeli_kons, eeli_pat, eeli_user, eeli_fall);
+			ElexisEventDispatcher.getInstance().addListeners(eeli_kons, eeli_kons_sync, eeli_pat,
+				eeli_user, eeli_fall);
 			adaptMenus();
 		} else {
-			ElexisEventDispatcher.getInstance().removeListeners(eeli_kons, eeli_pat, eeli_user, eeli_fall);
+			ElexisEventDispatcher.getInstance().removeListeners(eeli_kons, eeli_kons_sync, eeli_pat,
+				eeli_user, eeli_fall);
 		}
-
 	}
 
 	public void adaptMenus() {

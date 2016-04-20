@@ -17,8 +17,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.ISaveablePart2;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.part.ViewPart;
 
+import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.data.events.ElexisEvent;
 import ch.elexis.core.data.events.ElexisEventDispatcher;
 import ch.elexis.core.data.events.ElexisEventListener;
@@ -26,11 +28,10 @@ import ch.elexis.core.ui.actions.GlobalActions;
 import ch.elexis.core.ui.actions.GlobalEventDispatcher;
 import ch.elexis.core.ui.actions.IActivationListener;
 import ch.elexis.core.ui.events.ElexisUiEventListenerImpl;
+import ch.elexis.core.ui.locks.ToggleCurrentCaseLockHandler;
 import ch.elexis.core.ui.util.SWTHelper;
 import ch.elexis.data.Anwender;
 import ch.elexis.data.Fall;
-import ch.elexis.data.Konsultation;
-import ch.elexis.data.Patient;
 
 public class FallDetailView extends ViewPart implements ISaveablePart2, IActivationListener {
 	public FallDetailView() {
@@ -47,21 +48,24 @@ public class FallDetailView extends ViewPart implements ISaveablePart2, IActivat
 		}
 	};
 	
-	private final ElexisEventListener eeli_kons =
-		new ElexisUiEventListenerImpl(Konsultation.class) {
-			public void runInUi(final ElexisEvent ev){
-				if (ev.getObject() != null) {
-					fdb.setFall(((Konsultation) ev.getObject()).getFall());
-				}
-			}
-		};
 	private final ElexisEventListener eeli_fall = new ElexisUiEventListenerImpl(Fall.class) {
 		public void runInUi(final ElexisEvent ev){
 			Fall fall = (Fall) ev.getObject();
-			
+			Fall deselectedFall = null;
 			switch (ev.getType()) {
 			case ElexisEvent.EVENT_SELECTED:
+				deselectedFall = fdb.getFall();
 				fdb.setFall(fall);
+				if (deselectedFall != null) {
+					releaseAndRefreshLock(deselectedFall);
+				}
+				break;
+			case ElexisEvent.EVENT_DESELECTED:
+				deselectedFall = fdb.getFall();
+				fdb.setFall(null);
+				if (deselectedFall != null) {
+					releaseAndRefreshLock(deselectedFall);
+				}
 				break;
 			case ElexisEvent.EVENT_LOCK_AQUIRED:
 			case ElexisEvent.EVENT_LOCK_RELEASED:
@@ -73,25 +77,14 @@ public class FallDetailView extends ViewPart implements ISaveablePart2, IActivat
 				break;
 			}
 		}
-	};
-	private final ElexisEventListener eeli_pat = new ElexisUiEventListenerImpl(Patient.class) {
 		
-		public void runInUi(final ElexisEvent ev){
-			Patient patient = (Patient) ev.getObject();
-			Fall selectedFall = fdb.getFall();
-			if (selectedFall == null || !selectedFall.getPatient().equals(patient)) {
-				
-				Konsultation letzteKons = null;
-				if (patient != null)
-					letzteKons = patient.getLetzteKons(false);
-				if (letzteKons != null) {
-					fdb.setFall(letzteKons.getFall());
-				} else {
-					fdb.setFall(null);
-				}
-			} else {
-				fdb.setFall(selectedFall);
+		private void releaseAndRefreshLock(Fall fall){
+			if (CoreHub.getLocalLockService().isLockedLocal(fall)) {
+				CoreHub.getLocalLockService().releaseLock(fall);
 			}
+			ICommandService commandService =
+				(ICommandService) getViewSite().getService(ICommandService.class);
+			commandService.refreshElements(ToggleCurrentCaseLockHandler.COMMAND_ID, null);
 		}
 	};
 	
@@ -151,11 +144,10 @@ public class FallDetailView extends ViewPart implements ISaveablePart2, IActivat
 	
 	public void visible(boolean mode){
 		if (mode) {
-			ElexisEventDispatcher.getInstance().addListeners(eeli_fall, eeli_pat, eeli_kons,
+			ElexisEventDispatcher.getInstance().addListeners(eeli_fall,
 				eeli_user);
-			eeli_pat.catchElexisEvent(ElexisEvent.createPatientEvent());
 		} else {
-			ElexisEventDispatcher.getInstance().removeListeners(eeli_fall, eeli_pat, eeli_kons,
+			ElexisEventDispatcher.getInstance().removeListeners(eeli_fall,
 				eeli_user);
 		}
 	}

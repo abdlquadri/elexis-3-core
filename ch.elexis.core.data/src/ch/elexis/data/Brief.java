@@ -13,6 +13,7 @@ package ch.elexis.data;
 
 import ch.elexis.core.constants.StringConstants;
 import ch.elexis.core.data.interfaces.IOutputter;
+import ch.elexis.core.model.BriefConstants;
 import ch.elexis.core.text.XRefExtensionConstants;
 import ch.rgw.compress.CompEx;
 import ch.rgw.tools.ExHandler;
@@ -39,14 +40,15 @@ public class Brief extends PersistentObject {
 	public static final String FLD_SENDER_ID = "AbsenderID";
 	public static final String FLD_PATIENT_ID = "PatientID";
 	public static final String FLD_SUBJECT = "Betreff";
+	public static final String FLD_NOTE = "note";
 	public static final String TABLENAME = "BRIEFE";
-	public static final String TEMPLATE = "Vorlagen";
-	public static final String AUZ = "AUF-Zeugnis";
-	public static final String RP = "Rezept";
-	public static final String UNKNOWN = "Allg.";
-	public static final String LABOR = "Labor";
-	public static final String BESTELLUNG = "Bestellung";
-	public static final String RECHNUNG = "Rechnung";
+	public static final String TEMPLATE = BriefConstants.TEMPLATE;
+	public static final String AUZ = BriefConstants.AUZ;
+	public static final String RP = BriefConstants.RP;
+	public static final String UNKNOWN = BriefConstants.UNKNOWN;
+	public static final String LABOR = BriefConstants.LABOR;
+	public static final String BESTELLUNG = BriefConstants.BESTELLUNG;
+	public static final String RECHNUNG = BriefConstants.RECHNUNG;
 	
 	public static final String MIMETYPE_OO2 = "application/vnd.oasis.opendocument.text";
 	public static final String SYS_TEMPLATE = "SYS";
@@ -60,7 +62,7 @@ public class Brief extends PersistentObject {
 	static {
 		addMapping(TABLENAME, FLD_SUBJECT, FLD_PATIENT_ID, DATE_COMPOUND, FLD_SENDER_ID,
 			FLD_DESTINATION_ID, FLD_KONSULTATION_ID, FLD_TYPE, "modifiziert=S:D:modifiziert",
-			"geloescht", FLD_MIME_TYPE, "gedruckt=S:D:gedruckt", "Path");
+			"geloescht", FLD_MIME_TYPE, "gedruckt=S:D:gedruckt", "Path", FLD_NOTE);
 	}
 	
 	protected Brief(){/* leer */
@@ -92,7 +94,7 @@ public class Brief extends PersistentObject {
 			if (dest != null) {
 				dst = dest.getId();
 			}
-			String dat = Datum.toString(TimeTool.DATE_GER);
+			String dat = Datum.toString(TimeTool.TIMESTAMP);
 			set(new String[] {
 				FLD_SUBJECT, FLD_PATIENT_ID, FLD_DATE, FLD_SENDER_ID, FLD_DATE_MODIFIED,
 				FLD_DESTINATION_ID, FLD_KONSULTATION_ID, FLD_TYPE, "geloescht"
@@ -126,7 +128,7 @@ public class Brief extends PersistentObject {
 	public boolean save(String cnt){
 		contents c = contents.load(getId());
 		c.save(cnt);
-		set(FLD_DATE_MODIFIED, new TimeTool().toString(TimeTool.DATE_COMPACT));
+		set(FLD_DATE_MODIFIED, new TimeTool().toString(TimeTool.TIMESTAMP));
 		return true;
 	}
 	
@@ -136,7 +138,7 @@ public class Brief extends PersistentObject {
 			// if(mimetype.equalsIgnoreCase(MIMETYPE_OO2)){
 			contents c = contents.load(getId());
 			c.save(in);
-			set(FLD_DATE_MODIFIED, new TimeTool().toString(TimeTool.DATE_COMPACT));
+			set(FLD_DATE_MODIFIED, new TimeTool().toString(TimeTool.TIMESTAMP));
 			set(FLD_MIME_TYPE, mimetype);
 			return true;
 			// }
@@ -211,7 +213,7 @@ public class Brief extends PersistentObject {
 	}
 	
 	public String getDatum(){
-		return get(FLD_DATE);
+		return new TimeTool(get(FLD_DATE)).toString(TimeTool.DATE_GER);
 	}
 	
 	public Kontakt getAdressat(){

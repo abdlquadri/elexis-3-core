@@ -34,6 +34,8 @@ import ch.elexis.core.ui.UiDesk;
 import ch.elexis.core.ui.laboratory.actions.LabOrderSetObservationDateAction;
 import ch.elexis.core.ui.laboratory.actions.LaborResultEditDetailAction;
 import ch.elexis.core.ui.laboratory.controls.util.LabOrderEditingSupport;
+import ch.elexis.core.ui.locks.AcquireLockBlockingUi;
+import ch.elexis.core.ui.locks.ILockHandler;
 import ch.elexis.data.LabItem;
 import ch.elexis.data.LabOrder;
 import ch.elexis.data.LabOrder.State;
@@ -427,9 +429,20 @@ public class LaborOrdersComposite extends Composite {
 		public void run(){
 			for (Object object : selectedOrders) {
 				if (object instanceof LabOrder) {
-					LabResult result = (LabResult) ((LabOrder) object).getLabResult();
+					final LabResult result = (LabResult) ((LabOrder) object).getLabResult();
 					if (result != null) {
-						result.delete();
+						AcquireLockBlockingUi.aquireAndRun(result, new ILockHandler() {
+							@Override
+							public void lockFailed(){
+								// do nothing
+								
+							}
+							
+							@Override
+							public void lockAcquired(){
+								result.delete();
+							}
+						});
 					}
 					((LabOrder) object).delete();
 				}

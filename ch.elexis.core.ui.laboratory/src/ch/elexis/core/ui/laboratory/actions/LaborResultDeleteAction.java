@@ -8,6 +8,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.StructuredViewer;
 
 import ch.elexis.core.data.events.ElexisEventDispatcher;
+import ch.elexis.core.ui.locks.AcquireLockBlockingUi;
+import ch.elexis.core.ui.locks.ILockHandler;
 import ch.elexis.data.LabOrder;
 import ch.elexis.data.LabOrder.State;
 import ch.elexis.data.LabResult;
@@ -45,12 +47,23 @@ public class LaborResultDeleteAction extends Action implements IAction {
 					
 					if (orders != null) {
 						for (LabOrder labOrder : orders) {
-							labOrder.setLabResult(null);
 							labOrder.setState(State.ORDERED);
 						}
 					}
-					result.delete();
-					
+					final LabResult lockResult = result;
+					AcquireLockBlockingUi.aquireAndRun(result, new ILockHandler() {
+						
+						@Override
+						public void lockFailed(){
+							// do nothing
+							
+						}
+						
+						@Override
+						public void lockAcquired(){
+							lockResult.delete();
+						}
+					});
 					ElexisEventDispatcher.reload(LabResult.class);
 				}
 			}

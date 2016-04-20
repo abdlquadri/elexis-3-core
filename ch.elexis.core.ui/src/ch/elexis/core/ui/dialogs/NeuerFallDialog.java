@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
+import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.data.events.ElexisEventDispatcher;
 import ch.elexis.core.ui.views.FallDetailBlatt2;
 import ch.elexis.data.Fall;
@@ -25,6 +26,7 @@ import ch.elexis.data.Patient;
 public class NeuerFallDialog extends TitleAreaDialog {
 	Fall fall;
 	Patient pat;
+	private FallDetailBlatt2 fdb;
 	
 	public NeuerFallDialog(Shell shell, Fall f){
 		super(shell);
@@ -34,13 +36,15 @@ public class NeuerFallDialog extends TitleAreaDialog {
 			fall =
 				pat.neuerFall(Messages.NeuerFallDialog_0, Messages.NeuerFallDialog_1,
 					Messages.NeuerFallDialog_2); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			ElexisEventDispatcher.fireSelectionEvent(fall);
 		}
 	}
 	
 	@Override
 	protected Control createDialogArea(Composite parent){
-		FallDetailBlatt2 fdb = new FallDetailBlatt2(parent);
+		fdb = new FallDetailBlatt2(parent);
+		fdb.setFall(fall);
+		fdb.setUnlocked(true);
+		fdb.setLockUpdate(false);
 		return fdb;
 	}
 	
@@ -54,6 +58,10 @@ public class NeuerFallDialog extends TitleAreaDialog {
 	
 	@Override
 	protected void okPressed(){
+		if (CoreHub.getLocalLockService().acquireLock(fall).isOk()) {
+			fdb.save();
+			CoreHub.getLocalLockService().releaseLock(fall);
+		}
 		ElexisEventDispatcher.reload(Fall.class);
 		super.okPressed();
 	}

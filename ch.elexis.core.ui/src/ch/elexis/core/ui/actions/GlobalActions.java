@@ -73,6 +73,7 @@ import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.data.events.ElexisEvent;
 import ch.elexis.core.data.events.ElexisEventDispatcher;
 import ch.elexis.core.data.util.ResultAdapter;
+import ch.elexis.core.model.IPersistentObject;
 import ch.elexis.core.ui.Hub;
 import ch.elexis.core.ui.UiDesk;
 import ch.elexis.core.ui.constants.ExtensionPointConstantsUi;
@@ -120,8 +121,8 @@ public class GlobalActions {
 	public static IAction printEtikette, printBlatt, printAdresse, printVersionedEtikette;
 	public static IAction printRoeBlatt;
 	public static IAction openFallaction, filterAction, makeBillAction, planeRechnungAction;
-	public static RestrictedAction delKonsAction, delFallAction, reopenFallAction, neueKonsAction, redateAction,
-			moveBehandlungAction;
+	public static RestrictedAction delKonsAction, delFallAction, reopenFallAction, neueKonsAction;
+	public static LockedAction moveBehandlungAction, redateAction;
 	public static IAction neuerFallAction;
 	
 	public static MenuManager perspectiveMenu, viewMenu;
@@ -644,11 +645,16 @@ public class GlobalActions {
 					setToolTipText(Messages.GlobalActions_NewKonsToolTip); //$NON-NLS-1$
 				}
 
-				@Override
-				public void doRun() {
-					Konsultation.neueKons(null);
+			@Override
+			public void doRun(){
+				Konsultation.neueKons(null);
+				IPersistentObject kons = ElexisEventDispatcher.getSelected(Konsultation.class);
+				if (kons != null && kons.exists()) {
+					CoreHub.getLocalLockService().acquireLock(kons);
+					CoreHub.getLocalLockService().releaseLock(kons);
 				}
-			};
+			}
+		};
 		neuerFallAction = new Action(Messages.GlobalActions_NewCase) { //$NON-NLS-1$
 				{
 					setImageDescriptor(Images.IMG_NEW.getImageDescriptor());

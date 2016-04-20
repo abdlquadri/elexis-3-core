@@ -38,6 +38,8 @@ import ch.elexis.core.ui.actions.RestrictedAction;
 import ch.elexis.core.ui.dialogs.ArticleDefaultSignatureTitleAreaDialog;
 import ch.elexis.core.ui.dialogs.MediDetailDialog;
 import ch.elexis.core.ui.icons.Images;
+import ch.elexis.core.ui.locks.AcquireLockUi;
+import ch.elexis.core.ui.locks.ILockHandler;
 import ch.elexis.core.ui.medication.handlers.PrintRecipeHandler;
 import ch.elexis.core.ui.medication.handlers.PrintTakingsListHandler;
 import ch.elexis.core.ui.util.ListDisplay;
@@ -51,6 +53,7 @@ import ch.elexis.data.Patient;
 import ch.elexis.data.PersistentObject;
 import ch.elexis.data.Prescription;
 import ch.rgw.tools.ExHandler;
+import ch.rgw.tools.TimeTool;
 
 /**
  * Display and let the user modify the medication of the currently selected patient This is a
@@ -108,9 +111,21 @@ public class FixMediDisplay extends ListDisplay<Prescription> {
 					if (o instanceof Artikel) {
 						MediDetailDialog dlg = new MediDetailDialog(getShell(), (Artikel) o);
 						if (dlg.open() == Window.OK) {
+							Prescription prescription =
 								new Prescription((Artikel) o, (Patient) ElexisEventDispatcher
 									.getSelected(Patient.class), dlg.getDosis(), dlg.getIntakeOrder());
 							// self.add(pre);
+							AcquireLockUi.aquireAndRun(prescription, new ILockHandler() {
+								@Override
+								public void lockFailed(){
+									prescription.remove();
+								}
+								
+								@Override
+								public void lockAcquired(){
+									// do nothing
+								}
+							});
 							reload();
 						}
 						
@@ -124,8 +139,20 @@ public class FixMediDisplay extends ListDisplay<Prescription> {
 								return;
 							}
 						}
-						new Prescription(pre.getArtikel(), ElexisEventDispatcher
+						Prescription prescription =
+							new Prescription(pre.getArtikel(), ElexisEventDispatcher
 							.getSelectedPatient(), pre.getDosis(), pre.getBemerkung());
+						AcquireLockUi.aquireAndRun(prescription, new ILockHandler() {
+							@Override
+							public void lockFailed(){
+								prescription.remove();
+							}
+							
+							@Override
+							public void lockAcquired(){
+								// do nothing
+							}
+						});
 						// self.add(now);
 						reload();
 					}
@@ -170,8 +197,16 @@ public class FixMediDisplay extends ListDisplay<Prescription> {
 		Patient act = ElexisEventDispatcher.getSelectedPatient();
 		if (act != null) {
 			List<Prescription> fix = Arrays.asList(act.getFixmedikation());
-			
+			TimeTool now = new TimeTool();
 			for (Prescription pr : fix) {
+				// skip stopped prescriptions 
+				String endTimeStr = pr.getEndTime();
+				if (!endTimeStr.isEmpty()) {
+					TimeTool endTime = new TimeTool(endTimeStr);
+					if (endTime.isBefore(now)) {
+						continue;
+					}
+				}
 				add(pr);
 			}
 			
@@ -251,8 +286,17 @@ public class FixMediDisplay extends ListDisplay<Prescription> {
 					Prescription pr = getSelection();
 					if (pr != null) {
 						remove(pr);
-						pr.delete(); // this does not delete but stop the Medication. Sorry for
-						// that
+						AcquireLockUi.aquireAndRun(pr, new ILockHandler() {
+							@Override
+							public void lockFailed(){
+								// do nothing
+							}
+							
+							@Override
+							public void lockAcquired(){
+								pr.delete(); // this does not delete but stop the Medication. Sorry for that
+							}
+						});
 						reload();
 					}
 				}
@@ -287,8 +331,18 @@ public class FixMediDisplay extends ListDisplay<Prescription> {
 					Prescription pr = getSelection();
 					if (pr != null) {
 						remove(pr);
-						pr.remove(); // this does, in fact, remove the medication from the
-						// database
+						AcquireLockUi.aquireAndRun(pr, new ILockHandler() {
+							
+							@Override
+							public void lockFailed(){
+								// do nothing
+							}
+							
+							@Override
+							public void lockAcquired(){
+								pr.remove(); // this does, in fact, remove the medication from the database
+							}
+						});
 						reload();
 					}
 				}

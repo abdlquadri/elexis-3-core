@@ -31,8 +31,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.FillLayout;
@@ -41,6 +39,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
@@ -74,8 +74,10 @@ import ch.elexis.core.ui.dialogs.KontaktDetailDialog;
 import ch.elexis.core.ui.dialogs.KontaktExtDialog;
 import ch.elexis.core.ui.dialogs.KontaktSelektor;
 import ch.elexis.core.ui.events.ElexisUiEventListenerImpl;
+import ch.elexis.core.ui.events.ElexisUiSyncEventListenerImpl;
 import ch.elexis.core.ui.icons.Images;
 import ch.elexis.core.ui.locks.IUnlockable;
+import ch.elexis.core.ui.locks.ToggleCurrentPatientLockHandler;
 import ch.elexis.core.ui.medication.views.FixMediDisplay;
 import ch.elexis.core.ui.settings.UserSettings;
 import ch.elexis.core.ui.util.InputPanel;
@@ -120,16 +122,37 @@ public class Patientenblatt2 extends Composite implements IActivationListener, I
 
 			switch (ev.getType()) {
 			case ElexisEvent.EVENT_SELECTED:
+				Patient deselectedPatient = actPatient;
 				setPatient(pat);
+				if (deselectedPatient != null) {
+					if (CoreHub.getLocalLockService().isLockedLocal(deselectedPatient)) {
+						CoreHub.getLocalLockService().releaseLock(deselectedPatient);
+					}
+					ICommandService commandService = (ICommandService) PlatformUI.getWorkbench()
+						.getService(ICommandService.class);
+					commandService.refreshElements(ToggleCurrentPatientLockHandler.COMMAND_ID,
+						null);
+				}
 				break;
 			case ElexisEvent.EVENT_LOCK_AQUIRED:
-				setUnlocked(pat.equals(actPatient));
-				break;
 			case ElexisEvent.EVENT_LOCK_RELEASED:
-				setUnlocked(false);
+				if (pat.equals(actPatient)) {
+					setUnlocked(ev.getType() == ElexisEvent.EVENT_LOCK_AQUIRED);
+				}
 				break;
 			default:
 				break;
+			}
+		}
+	};
+	
+	private final ElexisEventListener eeli_pat_sync =
+			new ElexisUiSyncEventListenerImpl(Patient.class, ElexisEvent.EVENT_LOCK_PRERELEASE) {
+		@Override
+		public void runInUi(ElexisEvent ev){
+			Patient pat = (Patient) ev.getObject();
+			if (pat.equals(actPatient)) {
+				save();
 			}
 		}
 	};
@@ -457,7 +480,6 @@ public class Patientenblatt2 extends Composite implements IActivationListener, I
 			ec[i] = WidgetFactory.createExpandableComposite(tk, form, lbExpandable[i]);
 			UserSettings.setExpandedState(ec[i], KEY_PATIENTENBLATT + lbExpandable[i]);
 			txExpandable[i] = tk.createText(ec[i], "", SWT.MULTI); //$NON-NLS-1$
-			txExpandable[i].addFocusListener(new Focusreact(dfExpandable[i]));
 			ec[i].setData(KEY_DBFIELD, dfExpandable[i]);
 			ec[i].addExpansionListener(new ExpansionAdapter() {
 				@Override
@@ -506,39 +528,28 @@ public class Patientenblatt2 extends Composite implements IActivationListener, I
 		tk.paintBordersFor(form.getBody());
 	}
 
-	@Override
-	public void dispose() {
-		GlobalEventDispatcher.removeActivationListener(this, viewsite.getPart());
-		super.dispose();
-	}
-
-	class Focusreact extends FocusAdapter {
-		private final String field;
-
-		Focusreact(final String f) {
-			field = f;
-		}
-
-		@Override
-		public void focusLost(final FocusEvent e) {
-			if (actPatient == null) {
-				return;
+	private void save(){
+		if (actPatient != null) {
+			if (ipp != null) {
+				ipp.save();
 			}
-			String oldvalue = actPatient.get(field);
-			String newvalue = ((Text) e.getSource()).getText();
-			if (oldvalue != null) {
-				if (oldvalue.equals(newvalue)) {
-					return;
-				}
-			}
-			if (newvalue != null) {
+			for (int i = 0; i < txExpandable.length; i++) {
+				String field = dfExpandable[i];
+				String oldvalue = actPatient.get(field);
+				String newvalue = txExpandable[i].getText();
 				if (bLocked) {
-					((Text) e.getSource()).setText(oldvalue);
+					txExpandable[i].setText(oldvalue);
 				} else {
 					actPatient.set(field, newvalue);
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void dispose() {
+		GlobalEventDispatcher.removeActivationListener(this, viewsite.getPart());
+		super.dispose();
 	}
 
 	/*
@@ -577,6 +588,7 @@ public class Patientenblatt2 extends Composite implements IActivationListener, I
 	}
 
 	public void setPatient(final Patient p) {
+		save();
 		actPatient = p;
 		ipp.getAutoForm().reload(actPatient);
 
@@ -606,7 +618,7 @@ public class Patientenblatt2 extends Composite implements IActivationListener, I
 		dmd.reload();
 		form.reflow(true);
 
-		setUnlocked(CoreHub.getLocalLockService().isLocked(p));
+		setUnlocked(CoreHub.getLocalLockService().isLockedLocal(p));
 	}
 
 	public void refresh() {
@@ -1134,9 +1146,9 @@ public class Patientenblatt2 extends Composite implements IActivationListener, I
 	public void visible(final boolean mode) {
 		if (mode == true) {
 			setPatient((Patient) ElexisEventDispatcher.getSelected(Patient.class));
-			ElexisEventDispatcher.getInstance().addListeners(eeli_pat, eeli_user);
+			ElexisEventDispatcher.getInstance().addListeners(eeli_pat_sync, eeli_pat, eeli_user);
 		} else {
-			ElexisEventDispatcher.getInstance().removeListeners(eeli_pat, eeli_user);
+			ElexisEventDispatcher.getInstance().removeListeners(eeli_pat_sync, eeli_pat, eeli_user);
 		}
 
 	}

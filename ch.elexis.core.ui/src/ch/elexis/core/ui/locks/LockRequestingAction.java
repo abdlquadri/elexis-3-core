@@ -1,27 +1,29 @@
 package ch.elexis.core.ui.locks;
 
+import org.eclipse.jface.action.Action;
+
 import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.lock.types.LockResponse;
-import ch.elexis.core.ui.actions.RestrictedAction;
-import ch.elexis.core.ui.util.SWTHelper;
 import ch.elexis.data.PersistentObject;
 
-public abstract class LockRequestingAction<T extends PersistentObject> extends RestrictedAction {
+/**
+ * The lock is acquired before calling doRun. If the lock can not be acquired doRun is not called,
+ * and a message is displayed. Action will always be active.
+ * 
+ * @author thomas
+ *
+ * @param <T>
+ */
+public abstract class LockRequestingAction<T extends PersistentObject> extends Action {
 
 	private T object;
 
 	public LockRequestingAction(String text) {
-		super(null, text);
+		super(text);
 		setEnabled(true);
 	}
 
-	@Override
-	public void reflectRight() {
-		// we always pretend to be allowed
-		// as we determine lock later on
-	}
-
-	public void doRun() {
+	public void run(){
 		object = getTargetedObject();
 		if (object == null) {
 			return;
@@ -32,12 +34,7 @@ public abstract class LockRequestingAction<T extends PersistentObject> extends R
 			doRun(object);
 			CoreHub.getLocalLockService().releaseLock(object);
 		} else {
-			log.warn("Unable to acquire lock for "+object.storeToString());
-			// TODO show message
-			// we could not get the lock, what now??
-			// simple ui warning showing who currently owns the lock?
-			SWTHelper.showError("Lock acquisition error.", "Can't acquire lock for " + object.storeToString()
-			+ ". Lock currently held by " + lr.getLockInfos().getUser());
+			LockResponseHelper.showInfo(lr, object, null);
 		}
 	};
 

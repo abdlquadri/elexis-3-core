@@ -16,6 +16,8 @@ import org.eclipse.swt.widgets.Text;
 
 import ch.elexis.core.model.ILabResult;
 import ch.elexis.core.types.LabItemTyp;
+import ch.elexis.core.ui.locks.AcquireLockBlockingUi;
+import ch.elexis.core.ui.locks.ILockHandler;
 import ch.elexis.core.ui.views.controls.LaborSelectionComposite;
 import ch.elexis.data.LabResult;
 import ch.rgw.tools.TimeTool;
@@ -263,32 +265,44 @@ public class EditLabResultDialog extends TitleAreaDialog {
 	
 	private void updateTargetToModel(){
 		if (result != null) {
-			if (result.getItem().getTyp() == LabItemTyp.NUMERIC
-				|| result.getItem().getTyp() == LabItemTyp.ABSOLUTE) {
-				result.setResult(resultTxt.getText());
+			AcquireLockBlockingUi.aquireAndRun(result, new ILockHandler() {
 				
-				result.setUnit(unitTxt.getText());
-				result.setRefMale(refMaleTxt.getText());
-				result.setRefFemale(refFemaleTxt.getText());
-				
-				updateDateTimeTargetToModel();
-			} else if (result.getItem().getTyp() == LabItemTyp.TEXT) {
-				if (result.isLongText()) {
-					result.setResult("text"); //$NON-NLS-1$
-					result.set(LabResult.COMMENT, resultTxt.getText());
-				} else {
-					// convert to long text
-					if (resultTxt.getText().length() < 200) {
-						result.setResult(resultTxt.getText());
-					} else {
-						result.setResult("text"); //$NON-NLS-1$
-						result.set(LabResult.COMMENT, resultTxt.getText());
-					}
+				@Override
+				public void lockFailed(){
+					// do nothing
+					
 				}
 				
-				updateDateTimeTargetToModel();
-			}
-			result.setOrigin(originSelection.getKontakt());
+				@Override
+				public void lockAcquired(){
+					if (result.getItem().getTyp() == LabItemTyp.NUMERIC
+						|| result.getItem().getTyp() == LabItemTyp.ABSOLUTE) {
+						result.setResult(resultTxt.getText());
+						
+						result.setUnit(unitTxt.getText());
+						result.setRefMale(refMaleTxt.getText());
+						result.setRefFemale(refFemaleTxt.getText());
+						
+						updateDateTimeTargetToModel();
+					} else if (result.getItem().getTyp() == LabItemTyp.TEXT) {
+						if (result.isLongText()) {
+								result.setResult("text"); //$NON-NLS-1$
+								result.set(LabResult.COMMENT, resultTxt.getText());
+						} else {
+							// convert to long text
+							if (resultTxt.getText().length() < 200) {
+								result.setResult(resultTxt.getText());
+							} else {
+								result.setResult("text"); //$NON-NLS-1$
+								result.set(LabResult.COMMENT, resultTxt.getText());
+							}
+							}
+						
+						updateDateTimeTargetToModel();
+						}
+					result.setOrigin(originSelection.getKontakt());
+				}
+			});
 		}
 	}
 	

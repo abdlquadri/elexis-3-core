@@ -26,11 +26,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import ch.elexis.core.constants.StringConstants;
-import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.data.events.ElexisEventDispatcher;
 import ch.elexis.core.ui.dialogs.Messages;
 import ch.elexis.core.ui.icons.ImageSize;
 import ch.elexis.core.ui.icons.Images;
+import ch.elexis.core.ui.locks.AcquireLockUi;
+import ch.elexis.core.ui.locks.ILockHandler;
 import ch.elexis.core.ui.util.SWTHelper;
 import ch.elexis.data.Kontakt;
 import ch.elexis.data.Patient;
@@ -126,7 +127,7 @@ public class PatientErfassenDialog extends TitleAreaDialog {
 	
 	@Override
 	protected void okPressed(){
-		String[] ret = new String[8];
+		final String[] ret = new String[8];
 		ret[0] = tName.getText();
 		ret[1] = tVorname.getText();
 		int idx = cbSex.getSelectionIndex();
@@ -174,19 +175,24 @@ public class PatientErfassenDialog extends TitleAreaDialog {
 				}
 			}
 			result = new Patient(ret[0], ret[1], check, ret[2]);
-			CoreHub.getLocalLockService().acquireLock(result);
-			
-			result.set(new String[] {
-				Kontakt.FLD_STREET, Kontakt.FLD_ZIP, Kontakt.FLD_PLACE, Kontakt.FLD_PHONE1
-			}, new String[] {
-				ret[4], ret[5], ret[6], ret[7]
+			AcquireLockUi.aquireAndRun(result, new ILockHandler() {
+				
+				@Override
+				public void lockFailed(){
+					result.delete();
+				}
+				
+				@Override
+				public void lockAcquired(){
+					result.set(new String[] {
+						Kontakt.FLD_STREET, Kontakt.FLD_ZIP, Kontakt.FLD_PLACE, Kontakt.FLD_PHONE1
+					}, new String[] {
+						ret[4], ret[5], ret[6], ret[7]
+					});
+					
+					ElexisEventDispatcher.fireSelectionEvent(result);
+				}
 			});
-			
-			if (check != null) {
-				check.add(TimeTool.YEAR, 18);
-			}
-			
-			ElexisEventDispatcher.fireSelectionEvent(result);
 			super.okPressed();
 		} catch (TimeFormatException e) {
 			ExHandler.handle(e);
@@ -197,8 +203,6 @@ public class PatientErfassenDialog extends TitleAreaDialog {
 			ExHandler.handle(pe);
 			SWTHelper.showError("Unplausible Angaben",
 				"Bitte überprüfen Sie die Eingaben nochmals.");
-		} finally {
-			CoreHub.getLocalLockService().releaseLock(result);
 		}
 	}
 	

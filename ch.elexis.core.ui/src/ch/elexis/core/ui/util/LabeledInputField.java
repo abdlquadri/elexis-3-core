@@ -35,16 +35,17 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tiff.common.ui.datepicker.DatePickerCombo;
+
 import ch.elexis.core.constants.StringConstants;
 import ch.elexis.core.exceptions.PersistenceException;
 import ch.elexis.core.ui.UiDesk;
+import ch.elexis.core.ui.locks.IUnlockable;
 import ch.elexis.data.PersistentObject;
 import ch.rgw.tools.ExHandler;
 import ch.rgw.tools.Money;
 import ch.rgw.tools.StringTool;
 import ch.rgw.tools.TimeTool;
-
-import com.tiff.common.ui.datepicker.DatePickerCombo;
 
 /**
  * Ein Ein/Ausgabeelement, das aus einem Kästchen mit darin einem Label und darunter einem Control
@@ -473,12 +474,17 @@ public class LabeledInputField extends Composite {
 		
 		public void setEditable(boolean ed){
 			mine.lbl.setEnabled(ed);
+			if(tFeldTyp==Typ.EXECSTRING || tFeldTyp==Typ.HYPERLINK) {
+				mine.lbl.setEnabled(true);
+				((Text) mine.ctl).setEnabled(ed);
+				return;
+			}
+			
 			if(mine.ctl instanceof Text) {
 				((Text) mine.ctl).setEditable(ed);
 			} else {
 				mine.ctl.setEnabled(ed);
 			}
-
 		}
 		
 		public void setChoices(String... strings){
@@ -496,7 +502,7 @@ public class LabeledInputField extends Composite {
 	 * TableWrapData twd=new TableWrapData(TableWrapData.FILL_GRAB);<br>
 	 * twd.grabHorizontal=true;<br>af.setLayoutData(twd);</ul><br></code>
 	 */
-	public static class AutoForm extends Tableau {
+	public static class AutoForm extends Tableau implements IUnlockable {
 		InputData[] def;
 		Control[] cFields;
 		PersistentObject act;
@@ -566,66 +572,79 @@ public class LabeledInputField extends Composite {
 						if (act != null) {
 							Control src = (Control) e.getSource();
 							InputData inp = (InputData) src.getData();
-							String val = StringTool.leer;
-							switch (inp.tFeldTyp) {
-							
-							case STRING:
-							case COMBO:
-							case INT:
-							case EXECSTRING:
-							case DATE:
-								val = inp.getText();
-								break;
-							case CURRENCY:
-								try {
-									Money money = new Money(inp.getText());
-									val = money.getCentsAsString();
-								} catch (ParseException e1) {
-									ExHandler.handle(e1);
-									val = "";
-								}
-								// double betr=Double.parseDouble(inp.getText())*100.0;
-								// val=Long.toString(Math.round(betr));
-								break;
-							case LIST:
-								val = inp.getText();
-								break;
-							case CHECKBOX:
-								val =
-									(((Button) (inp.mine.getControl())).getSelection() == true) ? StringConstants.ONE
-											: StringConstants.ZERO;
-								break;
-							case CHECKBOXTRISTATE:
-								val =
-									((TristateCheckbox) (inp.mine.getControl()))
-										.getTristateDbValue();
-								break;
-							default:
-								break;
-							}
-							if (inp.sHashname == null) {
-								try {
-									act.set(inp.sFeldname, val);
-								} catch (PersistenceException pe) {
-									logger.error("Could not persist [" + val + "] for field ["
-										+ inp.sAnzeige + "]\nCause: " + pe.getCause().getMessage(),
-										pe);
-									
-									if (inp.tFeldTyp.equals(ch.elexis.core.ui.util.LabeledInputField.InputData.Typ.STRING)) {
-										// clear cache to always get the actual the DB value
-										PersistentObject.clearCache();
-										inp.mine.setText(act.get(inp.sFeldname));
-									}
-								}
-							} else {
-								Map ext = act.getMap(inp.sFeldname);
-								ext.put(inp.sHashname, val);
-								act.setMap(inp.sFeldname, ext);
-							}
+							save(inp);
 						}
 					}
 				});
 				cFields[i].setData(def[i]);
+			}
+		}
+		
+		public void save(){
+			for (InputData id : def) {
+				save(id);
+			}
+		}
+		
+		protected void save(InputData inp){
+			if (act == null) {
+				return;
+			}
+			String val = StringTool.leer;
+			switch (inp.tFeldTyp) {
+			
+			case STRING:
+			case COMBO:
+			case INT:
+			case EXECSTRING:
+			case DATE:
+				val = inp.getText();
+				break;
+			case CURRENCY:
+				try {
+					Money money = new Money(inp.getText());
+					val = money.getCentsAsString();
+				} catch (ParseException e1) {
+					ExHandler.handle(e1);
+					val = "";
+				}
+				// double betr=Double.parseDouble(inp.getText())*100.0;
+				// val=Long.toString(Math.round(betr));
+				break;
+			case LIST:
+				val = inp.getText();
+				break;
+			case CHECKBOX:
+				val = (((Button) (inp.mine.getControl())).getSelection() == true)
+						? StringConstants.ONE : StringConstants.ZERO;
+				break;
+			case CHECKBOXTRISTATE:
+				val = ((TristateCheckbox) (inp.mine.getControl())).getTristateDbValue();
+				break;
+			case HYPERLINK:
+				// dont try to save a hyperlink ...
+				return;
+			default:
+				break;
+			}
+			if (inp.sHashname == null) {
+				try {
+					act.set(inp.sFeldname, val);
+				} catch (PersistenceException pe) {
+					logger.error("Could not persist [" + val + "] for field [" + inp.sAnzeige
+						+ "]\nCause: " + pe.getCause().getMessage(), pe);
+					
+					if (inp.tFeldTyp
+						.equals(ch.elexis.core.ui.util.LabeledInputField.InputData.Typ.STRING)) {
+						// clear cache to always get the actual the DB value
+						PersistentObject.clearCache();
+						inp.mine.setText(act.get(inp.sFeldname));
+					}
+				}
+			} else {
+				Map ext = act.getMap(inp.sFeldname);
+				ext.put(inp.sHashname, val);
+				act.setMap(inp.sFeldname, ext);
 			}
 		}
 		
@@ -696,6 +715,13 @@ public class LabeledInputField extends Composite {
 					((TristateCheckbox) (def[i].mine.getControl())).setTristateDbValue(val);
 					break;
 				}
+			}
+		}
+		
+		@Override
+		public void setUnlocked(boolean unlocked){
+			for (InputData id : def) {
+				id.setEditable(unlocked);
 			}
 		}
 	}
