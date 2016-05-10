@@ -294,9 +294,26 @@ public class LabImportUtil implements ILabImportUtil {
 	}
 	
 	@Override
-	public ILabItem getLabItem(String code, IContact labor){
-		// TODO Auto-generated method stub
-		return null;
+	public ILabItem getLabItem(String identifier, IContact labor){
+		LabMapping mapping = LabMapping.getByContactAndItemName(labor.getId(), identifier);
+		if (mapping != null) {
+			return mapping.getLabItem();
+		}
+		
+		LabItem labItem = null;
+		Query<LabItem> qbe = new Query<LabItem>(LabItem.class);
+		qbe.add(LabItem.LAB_ID, Query.EQUALS, labor.getId());
+		qbe.add(LabItem.SHORTNAME, Query.EQUALS, identifier);
+		List<LabItem> list = qbe.execute();
+		if (!list.isEmpty()) {
+			labItem = list.get(0);
+			if (list.size() > 1) {
+				logger.warn(
+					"Found more than one LabItem for identifier [" + identifier + "] and Labor ["
+						+ labor.getLabel() + "]. This can cause problems when importing results.");
+			}
+		}
+		return labItem;
 	}
 	
 	@Override
@@ -333,9 +350,9 @@ public class LabImportUtil implements ILabImportUtil {
 		
 		// find LabItem
 		Query<LabItem> qbe = new Query<LabItem>(LabItem.class);
-		qbe.add("LaborID", "=", labor.getId()); //$NON-NLS-1$ //$NON-NLS-2$
-		qbe.add("titel", "=", HL7Constants.COMMENT_NAME); //$NON-NLS-1$ //$NON-NLS-2$
-		qbe.add("kuerzel", "=", HL7Constants.COMMENT_CODE); //$NON-NLS-1$ //$NON-NLS-2$
+		qbe.add(LabItem.LAB_ID, Query.EQUALS, labor.getId());
+		qbe.add(LabItem.TITLE, Query.EQUALS, HL7Constants.COMMENT_NAME);
+		qbe.add(LabItem.SHORTNAME, Query.EQUALS, HL7Constants.COMMENT_CODE);
 		List<LabItem> list = qbe.execute();
 		LabItem li = null;
 		if (list.size() < 1) {
@@ -350,20 +367,21 @@ public class LabImportUtil implements ILabImportUtil {
 		
 		// add LabResult
 		Query<LabResult> qr = new Query<LabResult>(LabResult.class);
-		qr.add("PatientID", "=", pat.getId()); //$NON-NLS-1$ //$NON-NLS-2$
-		qr.add("Datum", "=", commentsDate.toString(TimeTool.DATE_GER)); //$NON-NLS-1$ //$NON-NLS-2$
-		qr.add("ItemID", "=", li.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+		qr.add(LabResult.PATIENT_ID, Query.EQUALS, pat.getId());
+		qr.add(LabResult.DATE, Query.EQUALS, commentsDate.toString(TimeTool.DATE_GER));
+		qr.add(LabResult.ITEM_ID,Query.EQUALS, li.getId());
 		if (qr.execute().size() == 0) {
 			StringBuilder comment = new StringBuilder();
 			comment.append(hl7TextData.getText());
 			comment.append(hl7TextData.getComment());
 			// only add coments not yet existing
-			LabResult result =
+			LabResult labResult =
 				new LabResult(pat, commentsDate, li, "text", comment.toString(), labor); //$NON-NLS-1$
-			result.setObservationTime(commentsDate);
-			// TODO LockHook
+			labResult.setObservationTime(commentsDate);
+			
+			CoreHub.getLocalLockService().acquireLock((LabResult) labResult);
+			CoreHub.getLocalLockService().releaseLock((LabResult) labResult);
 		}
-		
 	}
 	
 	@Override
