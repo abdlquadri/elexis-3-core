@@ -24,7 +24,7 @@
 
    <splash
       location="ch.elexis.core.application" />
-   <launcher name="Elexis3">
+   <launcher name="elexis3">
       <linux icon="/rsc/elexis48.xpm"/>
       <macosx icon="/rsc/elexis-mac.icns"/>
       <solaris/>
@@ -74,5 +74,12 @@
       <plugin id="org.slf4j.jul" autoStart="true" startLevel="1" />
       <plugin id="org.slf4j.log4j" autoStart="true" startLevel="1" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>
