@@ -12,6 +12,8 @@ workspace/
 profile.tmp
 
 .idea/
-ch.elexis.core.ui.importer.div/.settings/
 es.core.elexis.common/
 **/org.eclipse.jdt.core.prefs
+.settings/
+**/.settings/
+**/target/
