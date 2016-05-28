@@ -24,7 +24,7 @@
 
    <splash
       location="ch.elexis.core.application" />
-   <launcher name="elexis3">
+   <launcher name="Elexis3">
       <linux icon="/ch.elexis.core.application/rsc/elexis48.xpm"/>
       <macosx icon="/ch.elexis.core.application/rsc/elexis-mac.icns"/>
       <solaris/>
@@ -36,10 +36,6 @@
 
 
    <vm>
-      <macos include="false">
-      
-      org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7 
-    </macos>
    </vm>
 
    <license>

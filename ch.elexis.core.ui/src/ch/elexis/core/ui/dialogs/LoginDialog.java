@@ -55,6 +55,13 @@ public class LoginDialog extends TitleAreaDialog {
 		Composite ret = new Composite(parent, SWT.NONE);
 		ret.setLayoutData(SWTHelper.getFillGridData(1, true, 1, true));
 		ret.setLayout(new GridLayout(2, false));
+		Label lblDatabase=new Label(ret, SWT.WRAP);
+		lblDatabase.setLayoutData(SWTHelper.getFillGridData(1,true,1,false));
+		lblDatabase.setText("Datenbank:");
+		Text tfDatabase=new Text(ret,SWT.BORDER|SWT.READ_ONLY);
+		tfDatabase.setText(Anwender.getConnection().getConnectString());
+		tfDatabase.setLayoutData(SWTHelper.getFillGridData(1,true,1,false));
+			
 		Label lu = new Label(ret, SWT.NONE);
 		
 		lu.setText(Messages.LoginDialog_0);
