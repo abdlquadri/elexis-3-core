@@ -57,11 +57,12 @@ public class LoginDialog extends TitleAreaDialog {
 		ret.setLayout(new GridLayout(2, false));
 		Label lblDatabase=new Label(ret, SWT.WRAP);
 		lblDatabase.setLayoutData(SWTHelper.getFillGridData(1,true,1,false));
-		lblDatabase.setText("Datenbank:");
+		lblDatabase.setText(Messages.LoginDialog_database);
 		Text tfDatabase=new Text(ret,SWT.BORDER|SWT.READ_ONLY);
 		tfDatabase.setText(Anwender.getConnection().getConnectString());
 		tfDatabase.setLayoutData(SWTHelper.getFillGridData(1,true,1,false));
-			
+		tfDatabase.setEnabled(false);
+
 		Label lu = new Label(ret, SWT.NONE);
 		
 		lu.setText(Messages.LoginDialog_0);
@@ -77,7 +78,7 @@ public class LoginDialog extends TitleAreaDialog {
 		
 		@SuppressWarnings("unchecked")
 		List<ILoginNews> newsModules =
-			Extensions.getClasses(ExtensionPointConstantsUi.LOGIN_NEWS, "class");
+			Extensions.getClasses(ExtensionPointConstantsUi.LOGIN_NEWS, Messages.LoginDialog_3);
 		
 		if (newsModules.size() > 0) {
 			Composite cNews = new Composite(ret, SWT.NONE);
@@ -96,7 +97,7 @@ public class LoginDialog extends TitleAreaDialog {
 			}
 			
 		}
-		
+		usr.setFocus();
 		return ret;
 	}
 	
