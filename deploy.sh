@@ -1,10 +1,18 @@
 #!/usr/bin/env bash
 
-PRODUCTS=/var/www/vhosts/elexis.ch/httpdocs/ungrad/products/elexis-core/${BUILD_NUMBER}
-P2=/var/www/vhosts/elexis.ch/httpdocs/ungrad/p2/elexis-core/${BUILD_NUMBER}
+WEBSPACE=/var/www/vhosts/elexis.ch/httpdocs/ungrad
 
-mkdir -p $PRODUCTS
-mkdir -p $P2
+PRODUCTS=${WEBSPACE}/products/elexis-core
+P2=${WEBSPACE}/p2/elexis-core
 
-cp ch.elexis.core.p2site/target/products/*.zip $PRODUCTS
-cp -R ch.elexis.core.p2site/target/repository/* $P2
+mkdir -p ${PRODUCTS}/${BUILD_NUMBER}
+mkdir -p ${P2}/${BUILD_NUMBER}
+
+cp lucinda-server/target/lucinda-server*.jar ${PRODUCTS}/${BUILD_NUMBER}
+cp lucinda-client/target/lucinda-client*.jar ${PRODUCTS}/${BUILD_NUMBER}
+cp -R elexis-docmgr-lucinda-p2/target/repository/* ${P2}/${BUILD_NUMBER}
+
+rm ${PRODUCTS}/latest
+ln -s ${BUILD_NUMBER} ${WEBSPACE}/products/elexis-core/latest
+rm ${P2}/latest
+ln -s ${BUILD_NUMBER} ${WEBSPACE}/p2/elexis-core/latest
