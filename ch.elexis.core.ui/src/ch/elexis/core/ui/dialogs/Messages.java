@@ -249,7 +249,11 @@ public class Messages extends NLS {
 	public static String DiagnoseSelektorDialog_Message;
 	public static String LoginDialog_0;
 	public static String LoginDialog_1;
+
+	public static String LoginDialog_3;
 	public static String LoginDialog_4;
+
+	public static String LoginDialog_database;
 	public static String LoginDialog_login;
 	public static String LoginDialog_terminate;
 	public static String MediDetailDialog_lblNewLabel_text;

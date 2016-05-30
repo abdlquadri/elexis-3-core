@@ -6,10 +6,10 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="ch.elexis.core.application.ElexisApp"
-            name="Elexis OpenSource">
+            name="Elexis ungrad">
          <property
                name="appName"
-               value="Elexis OpenSource">
+               value="Elexis ungrad">
          </property>
          <property
                name="windowImages"
@@ -17,11 +17,11 @@
          </property>
          <property
                name="aboutText"
-               value="Elexis 3.0 - www.elexis.info">
+               value="Elexis.ungrad - www.elexis.ch/ungrad">
          </property>
          <property
                name="aboutImage"
-               value="rsc/elexislogo2.png">
+               value="rsc/elexis-logo.png">
          </property>
       </product>
    </extension>

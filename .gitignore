@@ -11,3 +11,9 @@ jetty.log
 workspace/
 profile.tmp
 
+.idea/
+es.core.elexis.common/
+**/org.eclipse.jdt.core.prefs
+.settings/
+**/.settings/
+**/target/
