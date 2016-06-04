@@ -3,5 +3,5 @@ gen_medelexis.rb
 Elexis.p2.inf
 repo.properties
 
-/target
-/bin
+/target/
+/bin/

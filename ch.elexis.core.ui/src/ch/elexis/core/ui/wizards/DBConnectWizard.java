@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005-2015, G. Weirich, MEDEVIT and Elexis
+ * Copyright (c) 2005-2016, G. Weirich, MEDEVIT and Elexis
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,7 @@ import ch.rgw.tools.StringTool;
 public class DBConnectWizard extends Wizard {
 	private List<DBConnection> storedConnectionList;
 	private DBConnection targetedConnection;
-	private boolean restartAfterChange = false;
+	private boolean restartAfterChange = true;
 	
 	private DBConnectWizardPage dbConnSelectionPage;
 	private DBConnectWizardPage dbConnNewConnPage;
