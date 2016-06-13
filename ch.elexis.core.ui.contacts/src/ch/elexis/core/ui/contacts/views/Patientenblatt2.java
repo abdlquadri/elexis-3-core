@@ -1126,7 +1126,7 @@ public class Patientenblatt2 extends Composite implements IUnlockable {
 		hHA.setEnabled(unlocked);
 		// delZA.setEnabled(!bLock);
 		removeZAAction.setEnabled(unlocked);
-		dmd.setUnlocked(false); // https://redmine.medelexis.ch/issues/4602
+		dmd.setUnlocked(true); // https://redmine.medelexis.ch/issues/4602
 		if (unlocked) {
 			hHA.setForeground(UiDesk.getColor(UiDesk.COL_BLUE));
 		} else {
