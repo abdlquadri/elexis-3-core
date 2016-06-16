@@ -11,6 +11,6 @@ cp ch.elexis.core.p2site/target/products/*.zip ${PRODUCTS}/${BUILD_NUMBER}
 cp -R ch.elexis.core.p2site/target/repository/* ${P2}/${BUILD_NUMBER}
 
 rm ${PRODUCTS}/latest
-ln -s ${BUILD_NUMBER} ${WEBSPACE}/products/elexis-core/latest
+ln -s ${PRODUCTS}/${BUILD_NUMBER} ${PRODUCTS}/latest
 rm ${P2}/latest
-ln -s ${BUILD_NUMBER} ${WEBSPACE}/p2/elexis-core/latest
+ln -s ${P2}/${BUILD_NUMBER} ${P2}/latest
