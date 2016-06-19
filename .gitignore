@@ -17,3 +17,5 @@ es.core.elexis.common/
 **/.settings/
 **/target/
 **/*.iml
+
+**/.DS_Store

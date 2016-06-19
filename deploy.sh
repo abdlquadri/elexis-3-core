@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-WEBSPACE=/var/www/vhosts/elexis.ch/httpdocs/ungrad
 
 PRODUCTS=${WEBSPACE}/products/elexis-core
 P2=${WEBSPACE}/p2/elexis-core
@@ -13,6 +12,6 @@ unzip ch.elexis.core.p2site/target/repository/content.jar
 cp -R ch.elexis.core.p2site/target/repository/* ${P2}/${BUILD_NUMBER}
 
 rm ${PRODUCTS}/latest
-ln -s ${BUILD_NUMBER} ${WEBSPACE}/products/elexis-core/latest
+ln -s ${PRODUCTS}/${BUILD_NUMBER} ${PRODUCTS}/latest
 rm ${P2}/latest
-ln -s ${BUILD_NUMBER} ${WEBSPACE}/p2/elexis-core/latest
+ln -s ${P2}/${BUILD_NUMBER} ${P2}/latest
