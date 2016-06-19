@@ -9,10 +9,10 @@ mkdir -p ${PRODUCTS}/${BUILD_NUMBER}
 mkdir -p ${P2}/${BUILD_NUMBER}
 
 cp ch.elexis.core.p2site/target/products/*.zip ${PRODUCTS}/${BUILD_NUMBER}
+unzip ch.elexis.core.p2site/target/repository/content.jar
 cp -R ch.elexis.core.p2site/target/repository/* ${P2}/${BUILD_NUMBER}
 
 rm ${PRODUCTS}/latest
 ln -s ${BUILD_NUMBER} ${WEBSPACE}/products/elexis-core/latest
 rm ${P2}/latest
 ln -s ${BUILD_NUMBER} ${WEBSPACE}/p2/elexis-core/latest
-
