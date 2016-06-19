@@ -257,7 +257,8 @@
 		<module>ch.elexis.core.p2site</module>
 	</modules>
 	<properties>
-		<scm_url>git@github.com:elexis/elexis-3-core.git</scm_url>
+		<!-- scm_url>git@github.com:elexis/elexis-3-core.git</scm_url -->
+		<scm_url>https://github.com/rgwch/elexis-3-core.git</scm_url>
 		<tycho-version>0.22.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-extras.version>${tycho-version}</tycho-extras.version>
@@ -300,11 +301,11 @@
 				<configuration>
 					<baselineMode>warn</baselineMode>
 					<baselineReplace>none</baselineReplace>
-					<baselineRepositories>
+					<!-- baselineRepositories>
 						<repository>
 							<url>http://download.elexis.info/mirror.4.elexis/${repo_variant}</url>
 						</repository>
-					</baselineRepositories>
+					</baselineRepositories  -->
 					<executions>
 						<execution>
 							<id>attach-p2-metadata</id>
