@@ -52,7 +52,7 @@ public class Konsultation extends PersistentObject implements Comparable<Konsult
 	public static final String FLD_BILL_ID = "RechnungsID";
 	public static final String FLD_CASE_ID = "FallID";
 	public static final String FLD_MANDATOR_ID = "MandantID";
-	private static final String TABLENAME = "BEHANDLUNGEN";
+	public static final String TABLENAME = "BEHANDLUNGEN";
 	volatile int actEntry;
 	
 	protected String getTableName(){
