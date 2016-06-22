@@ -218,67 +218,9 @@
       <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            category="ch.elexis.core.ui.preferences.SystemPreferencePage"
-            class="ch.elexis.core.ui.preferences.Ablauf"
-            id="ch.elexis.preferences.general"
-            name="%elexis.generalPrefs"/>
-      <page
-            category="ch.elexis.core.ui.preferences.SystemPreferencePage"
-            class="ch.elexis.core.ui.preferences.Datenbank"
-            id="ch.elexis.preferences.connect"
-            name="%elexis.databasePrefs"/>
-      <page
-            class="ch.elexis.core.ui.preferences.Gruppen"
-            id="ch.elexis.preferences.security"
-            name="%elexis.groupPrefs"/>
-      <page
-            class="ch.elexis.core.ui.preferences.Texterstellung"
-            id="ch.elexis.preferences.Texterstellung"
-            name="%elexis.textPrefs"/>
-      <page
-            category="ch.elexis.preferences.UserPreferences"
-            class="ch.elexis.core.ui.preferences.SidebarPreferences"
-            id="ch.elexis.sidebarPrefs"
-            name="%elexis.sidebarPrefs"/>
-      <page
-            class="ch.elexis.core.ui.preferences.ImporterHost"
-            id="ch.elexis.preferences.transporters"
-            name="%elexis.importerPrefs"/>
-      <page
-      		class="ch.elexis.core.ui.preferences.Services"
-      		id="ch.elexis.preferences.onlineservices"
-      		name="%elexis.online"/>
-      <!--page
-            class="ch.elexis.preferences.DokumentKategorie"
-            id="ch.elexis.BriefKategorienPrefs"
-            name="%elexis.docCategoryPrefs"/-->
-      <page
-            class="ch.elexis.core.ui.preferences.Leistungscodes"
-            id="ch.elexis.Leistungscodes"
-            name="%elexis.activityCodePrefs"/>
-      <page
-            category="ch.elexis.core.ui.preferences.SystemPreferencePage"
-            class="ch.elexis.core.ui.preferences.PrinterPreferencePage"
-            id="ch.elexis.PrinterPreference"
-            name="%elexis.printerPrefs"/>
-      <page
-            category="ch.elexis.preferences.UserPreferences"
-            class="ch.elexis.core.ui.preferences.ReminderPrefences"
-            id="ch.elexis.reminderprefs"
-            name="%elexis.reminderPrefs"/>
-      <page
             class="ch.elexis.core.ui.preferences.UserPreferences"
             id="ch.elexis.preferences.UserPreferences"
             name="%elexis.userPrefs"/>
-      <page
-            category="ch.elexis.preferences.UserPreferences"
-            class="ch.elexis.core.ui.preferences.UserTextPref"
-            id="ch.elexis.preferences.usertext"
-            name="%page.name.0"/>
-      <page
-            class="ch.elexis.core.ui.preferences.LagerverwaltungPrefs"
-            id="ch.elexis.preferences.LagerverwaltungPrefs"
-            name="%page.name.1"/>
       <page
             category="ch.elexis.preferences.UserPreferences"
             class="ch.elexis.core.ui.preferences.UserCasePreferences"
@@ -286,21 +228,46 @@
             name="%elexis.userCasePrefs">
       </page>
       <page
-            class="ch.elexis.core.ui.preferences.ScannerPref"
-            id="ch.elexis.preferences.scanner"
-            name="%elexis.scannerPrefs">
-      </page>
-      <page
-            class="ch.elexis.core.ui.preferences.Stickers"
-            id="ch.elexis.prefs.sticker"
-            name="%page.name.4">
-      </page>
+            category="ch.elexis.preferences.UserPreferences"
+            class="ch.elexis.core.ui.preferences.ReminderPrefences"
+            id="ch.elexis.reminderprefs"
+            name="%elexis.reminderPrefs"/>
       <page
             category="ch.elexis.preferences.UserPreferences"
-            class="ch.elexis.core.ui.preferences.FontPreference"
-            id="ch.elexis.user.fontselector"
-            name="%page.name.5">
+            class="ch.elexis.core.ui.preferences.UserTextPref"
+            id="ch.elexis.preferences.usertext"
+            name="%page.name.0"/>
+      <page
+            class="ch.elexis.core.ui.preferences.Texterstellung"
+            id="ch.elexis.preferences.Texterstellung"
+            name="%elexis.textPrefs"/>
+      <page
+            category="ch.elexis.core.ui.preferences.SystemPreferencePage"
+            class="ch.elexis.core.ui.preferences.PrinterPreferencePage"
+            id="ch.elexis.PrinterPreference"
+            name="%elexis.printerPrefs"/>
+      <page
+            class="ch.elexis.core.ui.preferences.ImporterHost"
+            id="ch.elexis.preferences.transporters"
+            name="%elexis.importerPrefs"/>
+      <page
+            category="ch.elexis.core.ui.preferences.SystemPreferencePage"
+            class="ch.elexis.core.ui.preferences.Datenbank"
+            id="ch.elexis.preferences.connect"
+            name="%elexis.databasePrefs"/>
+      <page
+            class="ch.elexis.core.ui.preferences.DocMgrCategoryHost"
+            id="ch.elexis.core.ui.category_docmgr"
+            name="%elexis.DocumentHandling">
       </page>
+      <page
+      		class="ch.elexis.core.ui.preferences.Services"
+      		id="ch.elexis.preferences.onlineservices"
+      		name="%elexis.online"/>
+      <page
+            class="ch.elexis.core.ui.preferences.Leistungscodes"
+            id="ch.elexis.Leistungscodes"
+            name="%elexis.activityCodePrefs"/>
       <page
             category="ch.elexis.preferences.UserPreferences"
             class="ch.elexis.core.ui.preferences.XIDEdit"
@@ -308,15 +275,14 @@
             name="%page.name.6">
       </page>
       <page
-            class="ch.elexis.core.ui.preferences.CDSSGroup"
-            id="ch.elexis.preferences.cdss"
-            name="%elexis.cdss">
-      </page>
+            category="ch.elexis.preferences.UserPreferences"
+            class="ch.elexis.core.ui.preferences.SidebarPreferences"
+            id="ch.elexis.sidebarPrefs"
+            name="%elexis.sidebarPrefs"/>
       <page
-            category="ch.elexis.preferences.Texterstellung"
-            class="ch.elexis.core.ui.preferences.TextTemplatePreferences"
-            id="ch.elexis.preferences.documentTemplates"
-            name="%Textvorlagen">
+            class="ch.elexis.core.ui.preferences.ScannerPref"
+            id="ch.elexis.preferences.scanner"
+            name="%elexis.scannerPrefs">
       </page>
       <page
             category="ch.elexis.preferences.security"
@@ -325,10 +291,44 @@
             name="Benutzerverwaltung">
       </page>
       <page
-            category="ch.elexis.preferences.security"
-            class="ch.elexis.core.ui.preferences.RolesToAccessRightsPreferencePage"
-            id="ch.elexis.core.ui.preferences.RolesToAccessRightsPreferencePage"
-            name="Rollen und Rechte">
+            class="ch.elexis.core.ui.preferences.Gruppen"
+            id="ch.elexis.preferences.security"
+            name="%elexis.groupPrefs"/>
+      <page
+            class="ch.elexis.core.ui.preferences.LagerverwaltungPrefs"
+            id="ch.elexis.preferences.LagerverwaltungPrefs"
+            name="%page.name.1"/>
+      <page
+            category="ch.elexis.preferences.UserPreferences"
+            class="ch.elexis.core.ui.preferences.ServiceDiagnosePrefs"
+            id="ch.elexis.servicediagnose.prefs"
+            name="%page.name.7">
+      </page>
+      <!--page
+            class="ch.elexis.preferences.DokumentKategorie"
+            id="ch.elexis.BriefKategorienPrefs"
+            name="%elexis.docCategoryPrefs"/-->
+      <page
+            category="ch.elexis.preferences.Texterstellung"
+            class="ch.elexis.core.ui.preferences.TextTemplatePreferences"
+            id="ch.elexis.preferences.documentTemplates"
+            name="%Textvorlagen">
+      </page>
+      <page
+            category="ch.elexis.core.ui.preferences.SystemPreferencePage"
+            class="ch.elexis.core.ui.preferences.Ablauf"
+            id="ch.elexis.preferences.general"
+            name="%elexis.generalPrefs"/>
+      <page
+            class="ch.elexis.core.ui.preferences.CDSSGroup"
+            id="ch.elexis.preferences.cdss"
+            name="%elexis.cdss">
+      </page>
+      <page
+            category="ch.elexis.preferences.UserPreferences"
+            class="ch.elexis.core.ui.preferences.FontPreference"
+            id="ch.elexis.user.fontselector"
+            name="%page.name.5">
       </page>
       <page
             class="ch.elexis.core.ui.preferences.SystemPreferencePage"
@@ -336,10 +336,15 @@
             name="System">
       </page>
       <page
-            category="ch.elexis.preferences.UserPreferences"
-            class="ch.elexis.core.ui.preferences.ServiceDiagnosePrefs"
-            id="ch.elexis.servicediagnose.prefs"
-            name="%page.name.7">
+            category="ch.elexis.preferences.security"
+            class="ch.elexis.core.ui.preferences.RolesToAccessRightsPreferencePage"
+            id="ch.elexis.core.ui.preferences.RolesToAccessRightsPreferencePage"
+            name="Rollen und Rechte">
+      </page>
+      <page
+            class="ch.elexis.core.ui.preferences.Stickers"
+            id="ch.elexis.prefs.sticker"
+            name="%page.name.4">
       </page>
    </extension>
       <extension
