@@ -8,8 +8,8 @@ Require-Bundle: org.eclipse.core.runtime,
  ch.qos.logback.core,
  ch.qos.logback.classic,
  org.slf4j.api,
- org.slf4j.jul,
- uk.org.lidalia.sysout-over-slf4j;bundle-version="1.0.2"
+ uk.org.lidalia.sysout-over-slf4j;bundle-version="1.0.2",
+ jul.to.slf4j;bundle-version="1.7.21"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: elexis.info

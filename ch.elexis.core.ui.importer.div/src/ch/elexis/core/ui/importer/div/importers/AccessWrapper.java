@@ -23,6 +23,7 @@ import ch.rgw.tools.JdbcLink;
 
 import com.healthmarketscience.jackcess.Column;
 import com.healthmarketscience.jackcess.Database;
+import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Table;
 
 /**
@@ -39,15 +40,17 @@ public class AccessWrapper {
 	 * Open the mdbFile using sensible default
 	 */
 	public AccessWrapper(File mdbFile) throws IOException{
-		db = Database.open(mdbFile, true);
+		db = DatabaseBuilder.open(mdbFile);
 	}
 	
 	/*
 	 * Open the mdbFile with a specified charset
 	 */
+	/*
 	public AccessWrapper(File mdbFile, Charset ch) throws IOException{
-		db = Database.open(mdbFile, true, false, ch, null);
+		db = DatabaseBuilder.open(mdbFile, true, false, ch, null);
 	}
+	*/
 	
 	/*
 	 * Set a prefix for the imported tablesnames
@@ -72,7 +75,7 @@ public class AccessWrapper {
 	public int convertTable(String name, JdbcLink dest) throws IOException, SQLException{
 		Table table = db.getTable(name);
 		String insertName = ImportPrefix + name;
-		List<Column> cols = table.getColumns();
+		List<? extends Column> cols = table.getColumns();
 		try {
 			dest.exec("DROP TABLE IF EXISTS " + insertName);//$NON-NLS-1$
 			
