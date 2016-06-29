@@ -7,9 +7,9 @@ Bundle-Activator: ch.elexis.core.logging.Activator
 Require-Bundle: org.eclipse.core.runtime,
  ch.qos.logback.core,
  ch.qos.logback.classic,
- org.slf4j.api,
  uk.org.lidalia.sysout-over-slf4j;bundle-version="1.0.2",
  jul.to.slf4j;bundle-version="1.7.21"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: elexis.info
+Import-Package: org.slf4j;version="1.7.21"

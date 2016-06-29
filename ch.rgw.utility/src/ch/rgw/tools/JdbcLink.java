@@ -57,12 +57,13 @@ public class JdbcLink {
 	private String sPwd;
 	
 	private PoolingDataSource dataSource;
-	private GenericObjectPool<Connection> connectionPool;
+	private GenericObjectPool connectionPool;
 	// prepared statements are not released properly up until now, so keep 1 connection open
 	private Connection preparedStatementConnection;
 	
 	private int keepAliveCount;
 	private Timer keepAliveTimer = new Timer();
+	
 	private class KeepAliveTask extends TimerTask {
 		
 		private Connection connection;
@@ -85,7 +86,7 @@ public class JdbcLink {
 			}
 		}
 	}
-
+	
 	PreparedStatement preparedStatementKeepAlive;
 	
 	private static Log log;
@@ -238,7 +239,7 @@ public class JdbcLink {
 	 * @param password
 	 *            Passwort, kann null sein
 	 * @return errcode
-	 * 
+	 * 		
 	 * @throws JdbcLinkException
 	 */
 	public boolean connect(String user, String password){
@@ -268,22 +269,21 @@ public class JdbcLink {
 			// the "real" Connections created by the ConnectionFactory with
 			// the classes that implement the pooling functionality.
 			//
-			connectionPool = new GenericObjectPool<Connection>(null);
+			connectionPool = new GenericObjectPool(null);
 			// configure the connection pool
 			connectionPool.setMaxActive(32);
 			connectionPool.setMinIdle(2);
 			connectionPool.setMaxWait(10000);
 			connectionPool.setTestOnBorrow(true);
 			
-			new PoolableConnectionFactory(connectionFactory, connectionPool, null,
-				VALIDATION_QUERY, false,
-				true);
+			new PoolableConnectionFactory(connectionFactory, connectionPool, null, VALIDATION_QUERY,
+				false, true);
 			dataSource = new PoolingDataSource(connectionPool);
 			
 			// test establishing a connection
 			Connection conn = dataSource.getConnection();
 			conn.close();
-
+			
 			lastErrorCode = CONNECT_SUCCESS;
 			lastErrorString = "Connect successful";
 			log.log("Connect successful", Log.DEBUGMSG);
@@ -363,7 +363,7 @@ public class JdbcLink {
 			switch (in[i]) {
 			case 0:
 			case 34:
-				
+			
 			case '\'':
 				if (flavor.startsWith(DBFLAVOR_POSTGRESQL) || flavor.startsWith("hsql")) {
 					out[j++] = '\'';
@@ -396,12 +396,12 @@ public class JdbcLink {
 		} catch (SQLException ex) {
 			lastErrorCode = CONNECT_FAILED;
 			lastErrorString = "SQL exception: " + ex.getMessage();
-			throw JdbcLinkExceptionTranslation.translateException("Connect failed: "
-				+ lastErrorString, ex);
+			throw JdbcLinkExceptionTranslation
+				.translateException("Connect failed: " + lastErrorString, ex);
 		}
 		return conncetion;
 	}
-
+	
 	/**
 	 * This method is deprecated. Use the methods getStatement and releaseStatement instead.
 	 * 
@@ -414,8 +414,8 @@ public class JdbcLink {
 		} catch (SQLException ex) {
 			lastErrorCode = CONNECT_FAILED;
 			lastErrorString = "SQL exception: " + ex.getMessage();
-			throw JdbcLinkExceptionTranslation.translateException("Connect failed: "
-				+ lastErrorString, ex);
+			throw JdbcLinkExceptionTranslation
+				.translateException("Connect failed: " + lastErrorString, ex);
 		}
 	}
 	
@@ -469,7 +469,7 @@ public class JdbcLink {
 	
 	private HashMap<PreparedStatement, Connection> preparedConnections =
 		new HashMap<PreparedStatement, Connection>();
-	
+		
 	/**
 	 * Create a new PreparedStatement.
 	 * 
@@ -507,7 +507,7 @@ public class JdbcLink {
 		}
 		preparedConnections.remove(statement);
 	}
-
+	
 	/**
 	 * Ein Prepared Statement anlegen
 	 * 
@@ -677,7 +677,7 @@ public class JdbcLink {
 	 * Wrapper für Stm#exec
 	 * 
 	 * @author gerry
-	 * 
+	 * 		
 	 */
 	public int exec(final String sql){
 		Stm stm = getStatement();
@@ -784,7 +784,7 @@ public class JdbcLink {
 				}
 				
 				boolean throwException =
-					DatabaseNativeExceptionHandler.handleException(DBFlavor, e);	
+					DatabaseNativeExceptionHandler.handleException(DBFlavor, e);
 				if (throwException) {
 					throw JdbcLinkExceptionTranslation.translateException("Fehler bei: " + SQLText,
 						e);
@@ -1014,7 +1014,7 @@ public class JdbcLink {
 						w.write(JdbcLink.wrap((String) o));
 					}
 					break;
-				
+					
 				default:
 					String t = o.getClass().getName();
 					log.log("Unknown type " + t, Log.ERRORS);

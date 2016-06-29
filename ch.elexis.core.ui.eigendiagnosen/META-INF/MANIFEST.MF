@@ -14,7 +14,8 @@ Require-Bundle: ch.elexis.core;bundle-version="3.0.0",
  org.eclipse.ui.forms,
  ch.rgw.utility,
  ch.elexis.core.eigendiagnosen;bundle-version="3.0.0",
- au.com.bytecode.opencsv;bundle-version="2.4.0"
+ au.com.bytecode.opencsv;bundle-version="2.4.0",
+ slf4j.api;bundle-version="1.7.21"
 Created-By: Buildr
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 
