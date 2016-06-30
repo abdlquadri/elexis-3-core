@@ -8,9 +8,6 @@ Bundle-Vendor: elexis.info
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
- org.eclipse.ui.views;bundle-version="3.6.100",
- org.eclipse.ui.views.properties.tabbed;bundle-version="3.5.300",
- org.eclipse.ui.forms;bundle-version="3.5.200",
  org.eclipse.core.databinding;bundle-version="1.4.1",
  org.eclipse.core.databinding.beans;bundle-version="1.2.200",
  org.eclipse.jface.databinding;bundle-version="1.6.0",

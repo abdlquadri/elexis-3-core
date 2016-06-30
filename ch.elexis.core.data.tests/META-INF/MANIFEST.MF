@@ -5,7 +5,6 @@ Bundle-SymbolicName: ch.elexis.core.data.tests;singleton:=true
 Bundle-Version: 3.2.0.qualifier
 Bundle-Vendor: elexis.ch
 Fragment-Host: ch.elexis.core.data;bundle-version="3.2.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: ch.rgw.utility,
  org.eclipse.swt,
  ch.elexis.core,
