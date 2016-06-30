@@ -34,4 +34,4 @@ Export-Package: .,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-Activator: ch.elexis.core.data.activator.CoreHub
 Import-Package: javax.ws.rs;version="[2.0.0,2.1.0)",
- org.slf4j;version="1.7.21"
+ org.slf4j

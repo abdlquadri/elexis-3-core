@@ -17,7 +17,8 @@ Require-Bundle: org.eclipse.core.runtime,
  ch.elexis.core.ui;bundle-version="3.1.0",
  ch.elexis.core.ui.icons;bundle-version="3.0.0",
  ch.elexis.core.ui.medication;bundle-version="3.0.0",
- org.apache.commons.jexl;bundle-version="2.1.1"
+ org.apache.commons.jexl;bundle-version="2.1.1",
+ org.eclipse.ui.views.properties.tabbed;bundle-version="3.5.300"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: ch.elexis.core.ui.contacts.dialogs,
