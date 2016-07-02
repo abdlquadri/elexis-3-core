@@ -9,6 +9,23 @@
 	<prerequisites>
 		<maven>3.0.5</maven>
 	</prerequisites>
+	<repositories>
+		<repository>
+			<id>eclipse-mars</id>
+			<url>http://download.eclipse.org/releases/mars</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>ungrad.base</id>
+			<url>http://www.elexis.ch/ungrad/p2/base-deps</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>ungrad.ext</id>
+            <url>http://www.elexis.ch/ungrad/p2/dependencies/latest</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
 	<profiles>
 		<profile>
 			<id>windows-x86</id>
@@ -247,11 +264,11 @@
 		<module>ch.elexis.core.ui.feature</module>
 		<module>ch.elexis.core.ui.medication.os</module>
 		<module>ch.elexis.core.ui.medication.os.feature</module>
-    <!-- now follow the unit tests in a more or less logical order -->
+    <!-- now follow the unit tests in a more or less logical order
     <module>ch.rgw.utility.tests</module>
     <module>ch.elexis.core.data.tests</module>
     <module>ch.elexis.core.ui.importer.div.tests</module>
-    <module>ch.elexis.core.hl7.v2x.tests</module>
+    <module>ch.elexis.core.hl7.v2x.tests</module -->
     <!-- the ch.elexis.core.p2site creates an zipped installable application
 			and a p2 update site -->
 		<module>ch.elexis.core.p2site</module>
@@ -385,7 +402,7 @@
 					<target>
 						<artifact>
 							<groupId>ch.elexis</groupId>
-							<artifactId>juno-target</artifactId>
+							<artifactId>ungrad-target</artifactId>
 							<version>3.2.0-SNAPSHOT</version>
 							<!-- we cannot use a classifier here, or mvn compile would file in
 								any other project!! classifier>elexis-3</classifier -->
