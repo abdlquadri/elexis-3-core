@@ -31,7 +31,7 @@ Export-Package: .,
  ch.elexis.core.data.util,
  ch.elexis.data,
  ch.elexis.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: ch.elexis.core.data.activator.CoreHub
 Import-Package: javax.ws.rs;version="[2.0.0,2.1.0)",
  org.slf4j
