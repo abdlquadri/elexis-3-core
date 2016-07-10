@@ -118,7 +118,7 @@ public class FileTool {
 	}
 	
 	/**
-	 * Retourniert Dateiendung (mit Punkt). Falls keine Endung gefunden wird, wird ein leerer String
+	 * Retourniert Dateiendung (ohne Punkt). Falls keine Endung gefunden wird, wird ein leerer String
 	 * retourniert.
 	 */
 	public static String getExtension(String name){
