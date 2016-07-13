@@ -94,8 +94,7 @@ public class LabItem extends PersistentObject implements Comparable<LabItem>, IL
 	 */
 	public LabItem(String k, String t, Kontakt labor, String RefMann, String RefFrau, String Unit,
 		LabItemTyp type, String grp, String seq){
-		this(k, t, (labor != null) ? labor.getId() : null, RefMann, RefFrau, Unit, type, grp,
-			seq);
+		this(k, t, (labor != null) ? labor.getId() : null, RefMann, RefFrau, Unit, type, grp, seq);
 	}
 	
 	/**
@@ -444,15 +443,20 @@ public class LabItem extends PersistentObject implements Comparable<LabItem>, IL
 		};
 		String[] vals = new String[fields.length];
 		get(fields, vals);
-		sb.append(vals[0]).append(", ").append(vals[1]); //$NON-NLS-1$
-		if (vals[5].equals(StringConstants.ZERO)) {
-			sb.append(" (").append(vals[2]).append("/").append(getRefW()).append(StringTool.space) //$NON-NLS-1$ //$NON-NLS-2$
-				.append(vals[4]).append(")"); //$NON-NLS-1$
+		if (vals[0]==null) {
+			return "?";
 		} else {
-			sb.append(" (").append(getRefW()).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(vals[0]).append(", ").append(vals[1]); //$NON-NLS-1$
+			if (vals[5].equals(StringConstants.ZERO)) {
+				sb.append(" (").append(vals[2]).append("/").append(getRefW()) //$NON-NLS-1$//$NON-NLS-2$
+					.append(StringTool.space)
+					.append(vals[4]).append(")"); //$NON-NLS-1$
+			} else {
+				sb.append(" (").append(getRefW()).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			sb.append("[").append(vals[6]).append(", ").append(vals[7]).append("]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return sb.toString();
 		}
-		sb.append("[").append(vals[6]).append(", ").append(vals[7]).append("]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		return sb.toString();
 		
 	}
 	
@@ -583,42 +587,42 @@ public class LabItem extends PersistentObject implements Comparable<LabItem>, IL
 			labResult.set(LabResult.ITEM_ID, getId());
 		}
 	}
-
+	
 	@Override
 	public String getReferenceMale(){
 		return getRefM();
 	}
-
+	
 	@Override
 	public void setReferenceMale(String value){
 		setRefM(value);
 	}
-
+	
 	@Override
 	public String getReferenceFemale(){
 		return getRefW();
 	}
-
+	
 	@Override
 	public void setReferenceFemale(String value){
 		setRefW(value);
 	}
-
+	
 	@Override
 	public String getPriority(){
 		return getPrio();
 	}
-
+	
 	@Override
 	public void setPriority(String value){
 		setPrio(value);
 	}
-
+	
 	@Override
 	public String getUnit(){
 		return getEinheit();
 	}
-
+	
 	@Override
 	public void setUnit(String value){
 		setEinheit(value);
